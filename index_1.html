@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공정 모니터링 대시보드 · SECOM 11차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#EEF2F5;
+    --panel:#FFFFFF;
+    --ink:#17222C;
+    --ink-soft:#5B6B78;
+    --steel:#33607F;
+    --steel-deep:#1F3F56;
+    --steel-light:#8FB2C8;
+    --amber:#D98C2B;
+    --amber-soft:#FBE9D2;
+    --teal:#2E8B78;
+    --teal-soft:#DCF0EA;
+    --grid:#DBE3E9;
+    --grid-strong:#C4CFD7;
+    --radius:10px;
+    --shadow: 0 1px 2px rgba(23,34,44,0.04), 0 8px 24px -12px rgba(23,34,44,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/100% 42px,
+      var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:64px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--steel-deep);
+    color:#EDF3F6;
+    padding:28px clamp(16px,4vw,48px) 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 64px);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.14em;
+    color:var(--steel-light);
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:10px;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px rgba(46,139,120,0.25);}
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(22px,3vw,30px);
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    color:#B9CBD6;
+    font-size:14px;
+    max-width:640px;
+    line-height:1.55;
+  }
+
+  /* ---------- Layout ---------- */
+  main{
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 clamp(16px,4vw,48px);
+  }
+
+  /* Wafer lot strip — signature element */
+  .lotstrip-wrap{
+    margin-top:-18px;
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px 18px 14px;
+    position:relative;
+    z-index:2;
+  }
+  .lotstrip-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .lotstrip-title{font-size:12px; font-weight:600; color:var(--ink-soft); letter-spacing:0.04em; text-transform:uppercase;}
+  .lotstrip-legend{display:flex; gap:14px; font-size:11.5px; color:var(--ink-soft);}
+  .lotstrip-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .swatch{width:9px;height:9px;border-radius:2px; display:inline-block;}
+  #lotStrip{display:flex; flex-wrap:wrap; gap:5px;}
+  .lot-chip{
+    width:20px;height:20px;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:8px; font-family:'IBM Plex Mono',monospace;
+    cursor:default; transition:transform .12s ease, opacity .15s ease;
+    border:1px solid rgba(23,34,44,0.06);
+  }
+  .lot-chip.pass{background:var(--teal-soft); color:#1E6152;}
+  .lot-chip.fail{background:var(--amber-soft); color:#8A5310; font-weight:600;}
+  .lot-chip.dim{opacity:0.22;}
+  .lot-chip:hover{transform:translateY(-2px) scale(1.12); z-index:3;}
+
+  /* Filter bar */
+  .filterbar{
+    margin-top:16px;
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px 18px;
+    display:flex; flex-wrap:wrap; align-items:center; gap:18px;
+  }
+  .filter-group{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .filter-label{font-size:11.5px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; white-space:nowrap;}
+  .chip-btn{
+    border:1px solid var(--grid-strong);
+    background:#fff;
+    color:var(--ink);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-family:'IBM Plex Mono',monospace;
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .chip-btn:hover{border-color:var(--steel);}
+  .chip-btn.active{background:var(--steel); border-color:var(--steel); color:#fff;}
+  .chip-btn.active.fail-active{background:var(--amber); border-color:var(--amber);}
+  #resetBtn{
+    margin-left:auto;
+    border:1px solid var(--grid-strong);
+    background:var(--bg);
+    color:var(--ink-soft);
+    padding:7px 14px;
+    border-radius:8px;
+    font-size:12.5px;
+    font-family:'IBM Plex Mono',monospace;
+    cursor:pointer;
+  }
+  #resetBtn:hover{color:var(--ink); border-color:var(--steel);}
+
+  /* KPI cards */
+  .kpi-grid{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+  }
+  @media (max-width:920px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+  .kpi-card{
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    border-top:3px solid var(--steel);
+  }
+  .kpi-card.accent-teal{border-top-color:var(--teal);}
+  .kpi-card.accent-amber{border-top-color:var(--amber);}
+  .kpi-label{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;}
+  .kpi-value{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; letter-spacing:-0.01em; color:var(--ink);}
+  .kpi-unit{font-size:12px; color:var(--ink-soft); font-weight:400; margin-left:3px;}
+  .kpi-sub{font-size:11.5px; color:var(--ink-soft); margin-top:4px;}
+
+  /* Panels */
+  .panel-grid{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:16px;
+  }
+  @media (max-width:920px){ .panel-grid{grid-template-columns:1fr;} }
+  .panel{
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 18px 12px;
+  }
+  .panel-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; flex-wrap:wrap; gap:8px;}
+  .panel-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14.5px;}
+  .panel-note{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .panel select{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    border:1px solid var(--grid-strong);
+    border-radius:6px;
+    padding:5px 8px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .chart-box{height:260px; margin-top:8px; position:relative;}
+  .chart-box.tall{height:300px;}
+  .full{grid-column:1 / -1;}
+
+  footer{
+    max-width:1240px;
+    margin:24px auto 0;
+    padding:0 clamp(16px,4vw,48px);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  footer .flag{color:#8A5310; font-weight:600;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow"><span class="dot"></span>SECOM 11차 · FAB PROCESS LOG</div>
+  <h1>공정 모니터링 대시보드</h1>
+  <p>ETCH · CVD · PVD 5개 설비, 총 25건의 LOT 계측 데이터를 기준으로 설비별 가동 현황과 공정 파라미터 분포를 확인합니다.</p>
+</header>
+
+<main>
+
+  <!-- Signature: wafer lot strip -->
+  <div class="lotstrip-wrap">
+    <div class="lotstrip-head">
+      <div class="lotstrip-title">LOT 트래커 · 25 SLOTS</div>
+      <div class="lotstrip-legend">
+        <span><i class="swatch" style="background:var(--teal-soft);border:1px solid #1E6152"></i>양품</span>
+        <span><i class="swatch" style="background:var(--amber-soft);border:1px solid #8A5310"></i>불량</span>
+      </div>
+    </div>
+    <div id="lotStrip"></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filterbar">
+    <div class="filter-group">
+      <span class="filter-label">설비명</span>
+      <div id="equipFilters"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">양품여부</span>
+      <div id="statusFilters"></div>
+    </div>
+    <button id="resetBtn">↺ 필터 초기화</button>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Charts -->
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">설비명별 건수</div>
+        <div class="panel-note" id="equipNote"></div>
+      </div>
+      <div class="chart-box"><canvas id="equipChart"></canvas></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">양품 / 불량 비율</div>
+        <div class="panel-note" id="statusNote"></div>
+      </div>
+      <div class="chart-box"><canvas id="statusChart"></canvas></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">수치 컬럼 분포</div>
+        <select id="metricSelect">
+          <option value="챔버온도">챔버온도 (°C)</option>
+          <option value="압력">압력 (torr)</option>
+          <option value="가스유량">가스유량 (sccm)</option>
+          <option value="공정시간">공정시간 (min)</option>
+        </select>
+      </div>
+      <div class="chart-box tall"><canvas id="histChart"></canvas></div>
+    </div>
+
+    <div class="panel full">
+      <div class="panel-head">
+        <div class="panel-title">측정일시 기준 추이</div>
+        <select id="trendSelect">
+          <option value="챔버온도">챔버온도 (°C)</option>
+          <option value="압력">압력 (torr)</option>
+          <option value="가스유량">가스유량 (sccm)</option>
+          <option value="공정시간">공정시간 (min)</option>
+        </select>
+      </div>
+      <div class="chart-box tall"><canvas id="trendChart"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  원본 파일: 11cha_secom_cleaned.csv (25행 × 8열) · 결측값 없음 · 화면의 모든 집계값은 현재 필터가 적용된 원본 레코드에서 실시간 계산됩니다.<br>
+  <span class="flag">⚠ 데이터 품질 안내</span> 공정ID <b>LOT1003</b>이 서로 다른 설비명(CVD-01, ETCH-01)으로 2회 등장합니다. 재계측 또는 입력 오류 여부를 원본 소스와 대조하시기 바랍니다.
+</footer>
+
+<script>
+/* ---------------- 1. Embedded source data (11cha_secom_cleaned.csv) ---------------- */
+const RAW = [
+{"공정ID":"LOT1001","측정일시":"2026-06-30 08:00","설비명":"ETCH-01","챔버온도":254.0,"압력":99.3,"가스유량":46.9,"공정시간":66,"양품여부":"양품"},
+{"공정ID":"LOT1002","측정일시":"2026-06-30 09:00","설비명":"ETCH-02","챔버온도":252.2,"압력":105.1,"가스유량":43.3,"공정시간":57,"양품여부":"양품"},
+{"공정ID":"LOT1003","측정일시":"2026-06-30 10:00","설비명":"CVD-01","챔버온도":251.9,"압력":90.4,"가스유량":39.8,"공정시간":57,"양품여부":"양품"},
+{"공정ID":"LOT1004","측정일시":"2026-06-30 11:00","설비명":"CVD-02","챔버온도":246.6,"압력":96.36428571428571,"가스유량":42.9,"공정시간":51,"양품여부":"양품"},
+{"공정ID":"LOT1005","측정일시":"2026-06-30 12:00","설비명":"PVD-01","챔버온도":250.5,"압력":92.9,"가스유량":43.4,"공정시간":60,"양품여부":"양품"},
+{"공정ID":"LOT1007","측정일시":"2026-06-30 14:00","설비명":"ETCH-02","챔버온도":249.9,"압력":94.7,"가스유량":47.5,"공정시간":55,"양품여부":"양품"},
+{"공정ID":"LOT1008","측정일시":"2026-06-30 15:00","설비명":"CVD-01","챔버온도":272.2,"압력":106.0,"가스유량":44.4,"공정시간":63,"양품여부":"양품"},
+{"공정ID":"LOT1011","측정일시":"2026-06-30 18:00","설비명":"ETCH-01","챔버온도":244.6,"압력":103.1,"가스유량":48.1,"공정시간":63,"양품여부":"양품"},
+{"공정ID":"LOT1012","측정일시":"2026-06-30 19:00","설비명":"ETCH-02","챔버온도":248.3,"압력":96.36428571428571,"가스유량":40.5,"공정시간":64,"양품여부":"불량"},
+{"공정ID":"LOT1013","측정일시":"2026-06-30 20:00","설비명":"CVD-01","챔버온도":241.1,"압력":94.0,"가스유량":47.4,"공정시간":65,"양품여부":"양품"},
+{"공정ID":"LOT1014","측정일시":"2026-06-30 21:00","설비명":"CVD-02","챔버온도":241.7,"압력":99.6,"가스유량":47.9,"공정시간":63,"양품여부":"양품"},
+{"공정ID":"LOT1016","측정일시":"2026-06-30 23:00","설비명":"ETCH-01","챔버온도":238.6,"압력":105.2,"가스유량":47.7,"공정시간":60,"양품여부":"양품"},
+{"공정ID":"LOT1017","측정일시":"2026-07-01 00:00","설비명":"ETCH-02","챔버온도":261.8,"압력":97.4,"가스유량":42.6,"공정시간":57,"양품여부":"양품"},
+{"공정ID":"LOT1018","측정일시":"2026-07-01 01:00","설비명":"CVD-01","챔버온도":254.0,"압력":105.8,"가스유량":45.8,"공정시간":61,"양품여부":"양품"},
+{"공정ID":"LOT1019","측정일시":"2026-07-01 02:00","설비명":"CVD-02","챔버온도":250.8,"압력":104.8,"가스유량":44.4,"공정시간":58,"양품여부":"양품"},
+{"공정ID":"LOT1020","측정일시":"2026-07-01 03:00","설비명":"PVD-01","챔버온도":260.2,"압력":98.5,"가스유량":37.0,"공정시간":61,"양품여부":"양품"},
+{"공정ID":"LOT1022","측정일시":"2026-07-01 05:00","설비명":"ETCH-02","챔버온도":242.5,"압력":107.0,"가스유량":44.9,"공정시간":53,"양품여부":"양품"},
+{"공정ID":"LOT1023","측정일시":"2026-07-01 06:00","설비명":"CVD-01","챔버온도":250.5,"압력":96.36428571428571,"가스유량":44.4,"공정시간":61,"양품여부":"불량"},
+{"공정ID":"LOT1024","측정일시":"2026-07-01 07:00","설비명":"CVD-02","챔버온도":252.7,"압력":100.0,"가스유량":47.3,"공정시간":55,"양품여부":"양품"},
+{"공정ID":"LOT1025","측정일시":"2026-07-01 08:00","설비명":"PVD-01","챔버온도":256.3,"압력":95.5,"가스유량":49.2,"공정시간":54,"양품여부":"양품"},
+{"공정ID":"LOT1027","측정일시":"2026-07-01 10:00","설비명":"ETCH-02","챔버온도":250.8,"압력":97.5,"가스유량":40.3,"공정시간":60,"양품여부":"양품"},
+{"공정ID":"LOT1028","측정일시":"2026-07-01 11:00","설비명":"CVD-01","챔버온도":254.3,"압력":95.4,"가스유량":46.9,"공정시간":59,"양품여부":"불량"},
+{"공정ID":"LOT1029","측정일시":"2026-07-01 12:00","설비명":"CVD-02","챔버온도":243.7,"압력":98.4,"가스유량":47.4,"공정시간":55,"양품여부":"양품"},
+{"공정ID":"LOT1030","측정일시":"2026-07-01 13:00","설비명":"PVD-01","챔버온도":260.9,"압력":112.7,"가스유량":44.0,"공정시간":59,"양품여부":"양품"},
+{"공정ID":"LOT1003","측정일시":"2026-06-30 10:00","설비명":"ETCH-01","챔버온도":251.9,"압력":90.4,"가스유량":39.8,"공정시간":57,"양품여부":"양품"}
+];
+
+const EQUIP_LIST = [...new Set(RAW.map(d=>d["설비명"]))].sort();
+const METRIC_UNITS = {"챔버온도":"°C","압력":"torr","가스유량":"sccm","공정시간":"min"};
+const EQUIP_COLORS = {
+  "ETCH-01":"#33607F","ETCH-02":"#4F86A8","CVD-01":"#2E8B78","CVD-02":"#5CAE9A","PVD-01":"#D98C2B"
+};
+
+/* ---------------- 2. Filter state ---------------- */
+const state = { equip: new Set(), status: new Set() }; // empty set = no filter (show all)
+
+function filteredData(){
+  return RAW.filter(d=>{
+    const eqOk = state.equip.size===0 || state.equip.has(d["설비명"]);
+    const stOk = state.status.size===0 || state.status.has(d["양품여부"]);
+    return eqOk && stOk;
+  });
+}
+
+/* ---------------- 3. Build filter chips ---------------- */
+const equipWrap = document.getElementById('equipFilters');
+EQUIP_LIST.forEach(eq=>{
+  const b = document.createElement('button');
+  b.className='chip-btn'; b.textContent=eq; b.dataset.eq=eq;
+  b.onclick=()=>{ toggle(state.equip, eq); render(); };
+  equipWrap.appendChild(b);
+});
+const statusWrap = document.getElementById('statusFilters');
+[["양품","teal"],["불량","fail-active"]].forEach(([st])=>{
+  const b = document.createElement('button');
+  b.className='chip-btn'; b.textContent=st; b.dataset.st=st;
+  b.onclick=()=>{ toggle(state.status, st); render(); };
+  statusWrap.appendChild(b);
+});
+document.getElementById('resetBtn').onclick=()=>{
+  state.equip.clear(); state.status.clear(); render();
+};
+function toggle(set,val){ set.has(val) ? set.delete(val) : set.add(val); }
+
+/* ---------------- 4. Charts (Chart.js instances) ---------------- */
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#5B6B78';
+
+let equipChart, statusChart, histChart, trendChart;
+const metricSelect = document.getElementById('metricSelect');
+const trendSelect = document.getElementById('trendSelect');
+
+function makeHistBins(values, binCount=6){
+  const min = Math.min(...values), max = Math.max(...values);
+  const span = (max-min) || 1;
+  const width = span/binCount;
+  const bins = Array.from({length:binCount}, (_,i)=>({
+    from: min + i*width, to: min + (i+1)*width, count:0
+  }));
+  values.forEach(v=>{
+    let idx = Math.floor((v-min)/width);
+    if(idx>=binCount) idx=binCount-1;
+    if(idx<0) idx=0;
+    bins[idx].count++;
+  });
+  return bins;
+}
+
+function render(){
+  const data = filteredData();
+  const total = RAW.length;
+  const shown = data.length;
+
+  // Sync chip active states
+  document.querySelectorAll('#equipFilters .chip-btn').forEach(b=>{
+    b.classList.toggle('active', state.equip.has(b.dataset.eq));
+  });
+  document.querySelectorAll('#statusFilters .chip-btn').forEach(b=>{
+    const isFail = b.dataset.st==='불량';
+    const active = state.status.has(b.dataset.st);
+    b.classList.toggle('active', active);
+    b.classList.toggle('fail-active', active && isFail);
+  });
+
+  // ---- Lot strip ----
+  const strip = document.getElementById('lotStrip');
+  strip.innerHTML='';
+  RAW.forEach(d=>{
+    const inFilter = data.includes(d);
+    const chip = document.createElement('div');
+    chip.className = 'lot-chip ' + (d["양품여부"]==='양품'?'pass':'fail') + (inFilter?'':' dim');
+    chip.textContent = d["공정ID"].replace('LOT1','');
+    chip.title = `${d["공정ID"]} · ${d["설비명"]} · ${d["측정일시"]} · ${d["양품여부"]}`;
+    strip.appendChild(chip);
+  });
+
+  // ---- KPI cards ----
+  const passCount = data.filter(d=>d["양품여부"]==='양품').length;
+  const failCount = shown - passCount;
+  const avg = key => shown ? (data.reduce((s,d)=>s+d[key],0)/shown) : 0;
+
+  const kpis = [
+    {label:'전체 LOT 건수', value:shown, unit:`/ ${total}`, cls:''},
+    {label:'양품 건수', value:passCount, unit:`(${shown? (passCount/shown*100).toFixed(1):'0.0'}%)`, cls:'accent-teal'},
+    {label:'불량 건수', value:failCount, unit:`(${shown? (failCount/shown*100).toFixed(1):'0.0'}%)`, cls:'accent-amber'},
+    {label:'평균 챔버온도', value:avg('챔버온도').toFixed(1), unit:'°C', cls:''},
+    {label:'평균 압력 · 가스유량', value:avg('압력').toFixed(1)+' / '+avg('가스유량').toFixed(1), unit:'torr·sccm', cls:''},
+  ];
+  const kpiGrid = document.getElementById('kpiGrid');
+  kpiGrid.innerHTML='';
+  kpis.forEach(k=>{
+    const el = document.createElement('div');
+    el.className = 'kpi-card '+k.cls;
+    el.innerHTML = `<div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}<span class="kpi-unit">${k.unit}</span></div>`;
+    kpiGrid.appendChild(el);
+  });
+
+  // ---- Equip bar chart ----
+  const equipCounts = EQUIP_LIST.map(eq=>data.filter(d=>d["설비명"]===eq).length);
+  document.getElementById('equipNote').textContent = `표시 중 ${shown}건`;
+  if(equipChart) equipChart.destroy();
+  equipChart = new Chart(document.getElementById('equipChart'), {
+    type:'bar',
+    data:{ labels: EQUIP_LIST, datasets:[{
+      label:'건수',
+      data: equipCounts,
+      backgroundColor: EQUIP_LIST.map(eq=>EQUIP_COLORS[eq]),
+      borderRadius:5, maxBarThickness:46
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:(ctx)=>{
+          const pct = shown? (ctx.raw/shown*100).toFixed(1):'0.0';
+          return `${ctx.label}: ${ctx.raw}건 (${pct}%)`;
+        }}}
+      },
+      scales:{
+        x:{ grid:{display:false}, title:{display:true,text:'설비명'} },
+        y:{ beginAtZero:true, ticks:{precision:0}, title:{display:true,text:'건수 (LOT)'}, grid:{color:'#E4E9ED'} }
+      }
+    }
+  });
+
+  // ---- Status donut ----
+  if(statusChart) statusChart.destroy();
+  document.getElementById('statusNote').textContent = `양품 ${passCount} · 불량 ${failCount}`;
+  statusChart = new Chart(document.getElementById('statusChart'), {
+    type:'doughnut',
+    data:{ labels:['양품','불량'], datasets:[{
+      data:[passCount, failCount],
+      backgroundColor:['#2E8B78','#D98C2B'],
+      borderColor:'#fff', borderWidth:2
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{ position:'bottom', labels:{ boxWidth:10, boxHeight:10, font:{size:11.5} } },
+        tooltip:{ callbacks:{ label:(ctx)=>{
+          const pct = shown? (ctx.raw/shown*100).toFixed(1):'0.0';
+          return `${ctx.label}: ${ctx.raw}건 (${pct}%)`;
+        }}}
+      }
+    }
+  });
+
+  // ---- Histogram ----
+  const metric = metricSelect.value;
+  const values = data.map(d=>d[metric]);
+  const bins = values.length? makeHistBins(values, 6) : [];
+  if(histChart) histChart.destroy();
+  histChart = new Chart(document.getElementById('histChart'), {
+    type:'bar',
+    data:{
+      labels: bins.map(b=>`${b.from.toFixed(1)}–${b.to.toFixed(1)}`),
+      datasets:[{
+        label:'빈도',
+        data: bins.map(b=>b.count),
+        backgroundColor:'#33607F', borderRadius:4, categoryPercentage:0.95, barPercentage:0.98
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:(ctx)=>{
+          const pct = shown? (ctx.raw/shown*100).toFixed(1):'0.0';
+          return `구간 ${ctx.label} ${METRIC_UNITS[metric]}: ${ctx.raw}건 (${pct}%)`;
+        }}}
+      },
+      scales:{
+        x:{ grid:{display:false}, title:{display:true,text:`${metric} 구간 (${METRIC_UNITS[metric]})`}, ticks:{maxRotation:40,minRotation:0} },
+        y:{ beginAtZero:true, ticks:{precision:0}, title:{display:true,text:'빈도 (건)'}, grid:{color:'#E4E9ED'} }
+      }
+    }
+  });
+
+  // ---- Trend line ----
+  const tMetric = trendSelect.value;
+  const sorted = [...data].sort((a,b)=> a["측정일시"].localeCompare(b["측정일시"]));
+  if(trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    type:'line',
+    data:{
+      labels: sorted.map(d=>d["측정일시"].slice(5)),
+      datasets:[{
+        label: `${tMetric} (${METRIC_UNITS[tMetric]})`,
+        data: sorted.map(d=>d[tMetric]),
+        borderColor:'#33607F', backgroundColor:'rgba(51,96,127,0.08)',
+        pointBackgroundColor: sorted.map(d=>d["양품여부"]==='양품' ? '#2E8B78' : '#D98C2B'),
+        pointRadius:4, pointHoverRadius:6,
+        tension:0.25, fill:true, borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{ label:(ctx)=>{
+          const d = sorted[ctx.dataIndex];
+          return `${d["공정ID"]} · ${d["설비명"]} · ${tMetric} ${ctx.raw} ${METRIC_UNITS[tMetric]} · ${d["양품여부"]}`;
+        }}}
+      },
+      scales:{
+        x:{ grid:{display:false}, title:{display:true,text:'측정일시 (MM-DD HH:mm)'}, ticks:{maxRotation:60,minRotation:40} },
+        y:{ title:{display:true,text:`${tMetric} (${METRIC_UNITS[tMetric]})`}, grid:{color:'#E4E9ED'} }
+      }
+    }
+  });
+}
+
+metricSelect.addEventListener('change', render);
+trendSelect.addEventListener('change', render);
+
+render();
+</script>
+</body>
+</html>
