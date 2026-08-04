@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>정지은 | Bioinformatics Researcher Portfolio</title>
+<!--
+  ============================================================
+  📌 이 파일은 "정지은"님의 개인 포트폴리오 웹페이지입니다.
+  📌 아래에 나오는 "✏️ 수정하세요" 주석이 붙은 부분만 바꾸면
+     글자, 이미지, 링크를 쉽게 교체할 수 있습니다.
+  📌 색상/폰트/간격 같은 디자인 값은 <style> 안의
+     :root { ... } 부분에서 한 번에 관리합니다.
+  ============================================================
+-->
+<!-- 한글 폰트: Pretendard (본문/제목 공용) + 영문 숫자용 포인트 폰트 -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+  /* ============================================================
+     🎨 디자인 토큰 (색상 / 폰트 / 간격)
+     이 부분의 값만 바꿔도 전체 페이지 분위기가 바뀝니다.
+     ============================================================ */
+  :root{
+    /* 배경색 (짙은 네이비 → 거의 검정에 가까운 우주 배경) */
+    --bg-0:#05070c;
+    --bg-1:#0a0f1a;
+    --bg-2:#0e1524;
+
+    /* 네온 포인트 컬러 3종 (청록 / 마젠타-바이올렛 / 라임그린) */
+    --neon-cyan:#4deeea;
+    --neon-violet:#b98bff;
+    --neon-green:#8bffb0;
+
+    /* 텍스트 컬러 */
+    --text-0:#eef3ff;
+    --text-1:#aab6d4;
+    --text-2:#6c7796;
+
+    /* 카드/선 */
+    --line:rgba(255,255,255,0.08);
+    --card-bg:rgba(255,255,255,0.03);
+
+    /* 폰트 */
+    --font-body:'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+    --font-display:'Pretendard Variable', Pretendard, sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --font-accent:'Space Grotesk', sans-serif;
+
+    --radius:16px;
+    --container:1120px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+
+  /* 사용자가 '모션 최소화'를 설정했다면 애니메이션을 줄여줍니다 (접근성) */
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  body{
+    background:var(--bg-0);
+    color:var(--text-0);
+    font-family:var(--font-body);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  img{ max-width:100%; display:block; }
+
+  .wrap{ max-width:var(--container); margin:0 auto; padding:0 24px; }
+
+  section{ position:relative; padding:120px 0; }
+  @media (max-width:768px){ section{ padding:80px 0; } }
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--neon-cyan);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:24px; height:1px;
+    background:var(--neon-cyan);
+    box-shadow:0 0 8px var(--neon-cyan);
+  }
+
+  h2.section-title{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(28px,4vw,42px);
+    letter-spacing:-0.01em;
+    margin-bottom:16px;
+  }
+  .section-sub{
+    color:var(--text-1);
+    max-width:560px;
+    margin-bottom:56px;
+    font-size:15px;
+  }
+
+  /* ---------- 스크롤 리빌 애니메이션 ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible{ opacity:1; transform:translateY(0); }
+
+  /* ============================================================
+     상단 내비게이션
+     ============================================================ */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    backdrop-filter:blur(14px);
+    background:rgba(5,7,12,0.55);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    max-width:var(--container); margin:0 auto; padding:18px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--font-accent);
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:0.02em;
+  }
+  .logo span{ color:var(--neon-cyan); }
+
+  .nav-links{
+    display:flex; gap:36px;
+  }
+  .nav-links a{
+    font-size:14px;
+    color:var(--text-1);
+    position:relative;
+    padding:4px 0;
+    transition:color 0.25s ease;
+  }
+  .nav-links a:hover{ color:var(--text-0); }
+  .nav-links a::after{
+    content:'';
+    position:absolute; left:0; bottom:-2px;
+    width:0; height:1px;
+    background:var(--neon-cyan);
+    box-shadow:0 0 6px var(--neon-cyan);
+    transition:width 0.3s ease;
+  }
+  .nav-links a:hover::after{ width:100%; }
+
+  /* 상단 메뉴 우측 그룹: 메뉴 링크 + Contact 버튼 + 모바일 버거 아이콘 */
+  .nav-right{
+    display:flex;
+    align-items:center;
+    gap:28px;
+  }
+
+  /* ✏️ 상단 고정 Contact 버튼 스타일 (메뉴가 아닌 별도 CTA) */
+  .nav-cta{
+    display:inline-flex; align-items:center;
+    padding:9px 22px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    white-space:nowrap;
+    border:1px solid var(--neon-cyan);
+    color:var(--neon-cyan);
+    background:rgba(77,238,234,0.06);
+    transition:background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .nav-cta:hover{
+    background:rgba(77,238,234,0.16);
+    box-shadow:0 0 16px rgba(77,238,234,0.35);
+    transform:translateY(-1px);
+  }
+
+  .burger{
+    display:none;
+    width:28px; height:20px;
+    position:relative;
+    background:none; border:none; cursor:pointer;
+  }
+  .burger span{
+    position:absolute; left:0; width:100%; height:2px;
+    background:var(--text-0);
+    transition:all 0.3s ease;
+  }
+  .burger span:nth-child(1){ top:0; }
+  .burger span:nth-child(2){ top:9px; }
+  .burger span:nth-child(3){ top:18px; }
+  .burger.open span:nth-child(1){ transform:translateY(9px) rotate(45deg); }
+  .burger.open span:nth-child(2){ opacity:0; }
+  .burger.open span:nth-child(3){ transform:translateY(-9px) rotate(-45deg); }
+
+  @media (max-width:860px){
+    .nav-links{
+      position:fixed; top:64px; right:0;
+      width:220px; height:calc(100vh - 64px);
+      background:var(--bg-1);
+      flex-direction:column;
+      padding:32px 28px;
+      gap:24px;
+      border-left:1px solid var(--line);
+      transform:translateX(100%);
+      transition:transform 0.35s ease;
+    }
+    .nav-links.open{ transform:translateX(0); }
+    .burger{ display:block; }
+  }
+
+  /* ============================================================
+     히어로 섹션 (첫 화면)
+     ============================================================ */
+  .hero{
+    min-height:100vh;
+    display:flex; align-items:center;
+    position:relative;
+    padding-top:100px;
+    overflow:hidden;
+  }
+  #hero-canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    z-index:0;
+    opacity:0.85;
+  }
+  .hero::after{
+    /* 캔버스 위에 은은한 비네트/그라데이션 오버레이 */
+    content:'';
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at center, transparent 30%, var(--bg-0) 95%);
+    z-index:1;
+    pointer-events:none;
+  }
+  .hero-inner{
+    position:relative; z-index:2;
+    max-width:var(--container); margin:0 auto; padding:0 24px;
+    width:100%;
+  }
+  .hero-tag{
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--neon-green);
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    margin-bottom:20px;
+    display:inline-block;
+    text-shadow:0 0 12px rgba(139,255,176,0.5);
+  }
+  .hero h1{
+    /* ✏️ 이름을 수정하려면 아래 "정지은" 텍스트를 바꾸세요 */
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(44px,8vw,88px);
+    line-height:1.05;
+    letter-spacing:-0.02em;
+    margin-bottom:20px;
+    background:linear-gradient(90deg,#fff 20%, var(--neon-cyan) 55%, var(--neon-violet) 90%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 0 22px rgba(77,238,234,0.25));
+  }
+  .hero-role{
+    /* ✏️ 직업/한 줄 소개 문구를 여기서 수정하세요 */
+    font-family:var(--font-accent);
+    font-size:clamp(16px,2.2vw,22px);
+    color:var(--text-1);
+    margin-bottom:28px;
+  }
+  .hero-role em{
+    font-style:normal;
+    color:var(--neon-cyan);
+  }
+  .hero-desc{
+    /* ✏️ 간단한 자기소개 문구를 여기서 수정하세요 */
+    max-width:560px;
+    color:var(--text-1);
+    font-size:15.5px;
+    margin-bottom:40px;
+  }
+  .hero-btns{ display:flex; gap:16px; flex-wrap:wrap; }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:15px 28px;
+    border-radius:100px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-primary{
+    background:linear-gradient(90deg, var(--neon-cyan), var(--neon-violet));
+    color:#04060a;
+    box-shadow:0 0 24px rgba(77,238,234,0.35);
+  }
+  .btn-primary:hover{ box-shadow:0 0 34px rgba(77,238,234,0.55); }
+  .btn-ghost{
+    border-color:var(--line);
+    color:var(--text-0);
+    background:rgba(255,255,255,0.02);
+  }
+  .btn-ghost:hover{ border-color:var(--neon-cyan); box-shadow:0 0 18px rgba(77,238,234,0.2); }
+
+  /* ============================================================
+     About / 자기소개
+     ============================================================ */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1fr 1.3fr;
+    gap:64px;
+    align-items:start;
+  }
+  @media (max-width:860px){ .about-grid{ grid-template-columns:1fr; gap:36px; } }
+
+  .about-stat{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 20px;
+    background:var(--card-bg);
+    margin-bottom:14px;
+  }
+  .about-stat .num{
+    font-family:var(--font-accent);
+    font-size:28px;
+    font-weight:700;
+    color:var(--neon-green);
+  }
+  .about-stat .label{ font-size:13px; color:var(--text-2); margin-top:4px; }
+
+  .about-text p{
+    /* ✏️ 자기소개 요약 문단을 여기서 수정하세요 */
+    color:var(--text-1);
+    font-size:16px;
+    margin-bottom:18px;
+  }
+  .about-text p strong{ color:var(--text-0); font-weight:600; }
+
+  /* ============================================================
+     Experience / 경력 카드
+     ============================================================ */
+  .exp-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:24px;
+  }
+  @media (max-width:768px){ .exp-grid{ grid-template-columns:1fr; } }
+
+  .exp-card{
+    border:1px solid var(--line);
+    background:linear-gradient(160deg, var(--card-bg), rgba(255,255,255,0.01));
+    border-radius:var(--radius);
+    padding:32px;
+    position:relative;
+    overflow:hidden;
+    transition:transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+  /* 🖱️ 마우스를 올리면 카드가 살짝 떠오르며 네온 그림자가 생깁니다 */
+  .exp-card:hover{
+    transform:translateY(-8px) scale(1.015);
+    border-color:rgba(77,238,234,0.4);
+    box-shadow:0 20px 40px -18px rgba(0,0,0,0.6), 0 0 30px -6px rgba(77,238,234,0.25);
+  }
+  .exp-card::before{
+    content:'';
+    position:absolute; top:-40%; right:-20%;
+    width:220px; height:220px;
+    background:radial-gradient(circle, rgba(77,238,234,0.15), transparent 70%);
+    pointer-events:none;
+  }
+  .exp-icon{
+    width:44px; height:44px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    background:rgba(77,238,234,0.08);
+    border:1px solid rgba(77,238,234,0.25);
+    margin-bottom:20px;
+  }
+  .exp-card h3{
+    font-size:19px;
+    font-weight:700;
+    margin-bottom:14px;
+  }
+  .exp-card ul{ display:flex; flex-direction:column; gap:8px; }
+  .exp-card li{
+    font-size:14px;
+    color:var(--text-1);
+    padding-left:16px;
+    position:relative;
+  }
+  .exp-card li::before{
+    content:'';
+    position:absolute; left:0; top:8px;
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--neon-green);
+    box-shadow:0 0 6px var(--neon-green);
+  }
+
+  /* ============================================================
+     Skills / 보유 역량 태그
+     ============================================================ */
+  .skills-wrap{
+    display:flex; flex-wrap:wrap; gap:14px;
+  }
+  .skill-tag{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:12px 20px;
+    border-radius:100px;
+    border:1px solid var(--line);
+    background:var(--card-bg);
+    font-size:14px;
+    color:var(--text-0);
+    transition:border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .skill-tag:hover{
+    transform:translateY(-3px);
+    border-color:var(--neon-violet);
+    box-shadow:0 0 18px rgba(185,139,255,0.3);
+  }
+  .skill-tag .ic{ font-size:16px; }
+
+  /* ============================================================
+     Projects / 프로젝트
+     ============================================================ */
+  .proj-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:28px;
+  }
+  @media (max-width:860px){ .proj-grid{ grid-template-columns:1fr; } }
+
+  .proj-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--card-bg);
+    transition:transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .proj-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 24px 40px -20px rgba(0,0,0,0.6), 0 0 26px -8px rgba(185,139,255,0.3);
+  }
+  .proj-thumb{
+    /* ✏️ 실제 프로젝트 이미지를 쓰려면 아래 background 대신
+          <img src="이미지경로.jpg"> 태그로 교체하세요 */
+    height:180px;
+    position:relative;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(77,238,234,0.35), transparent 55%),
+      radial-gradient(circle at 80% 70%, rgba(185,139,255,0.35), transparent 55%),
+      var(--bg-2);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .proj-thumb .glyph{
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--text-2);
+    letter-spacing:0.1em;
+  }
+  .proj-body{ padding:26px; }
+  .proj-body h3{ font-size:17px; font-weight:700; margin-bottom:10px; }
+  .proj-body p{
+    /* ✏️ 프로젝트 설명 문구 수정 위치 */
+    font-size:13.5px;
+    color:var(--text-1);
+    margin-bottom:18px;
+  }
+  .proj-meta{ display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .proj-meta div{ font-size:12.5px; color:var(--text-2); }
+  .proj-meta span{ color:var(--neon-cyan); font-family:var(--font-mono); margin-right:6px; }
+  .proj-tech{ display:flex; flex-wrap:wrap; gap:8px; }
+  .proj-tech span{
+    font-family:var(--font-mono);
+    font-size:11px;
+    padding:5px 10px;
+    border-radius:6px;
+    background:rgba(139,255,176,0.08);
+    border:1px solid rgba(139,255,176,0.25);
+    color:var(--neon-green);
+  }
+
+  /* ============================================================
+     Training / 교육 및 트레이닝 (타임라인 형태)
+     ============================================================ */
+  .training-list{
+    display:flex;
+    flex-direction:column;
+    border-left:1px solid var(--line);
+    padding-left:36px;
+  }
+  .training-item{
+    position:relative;
+    padding-bottom:44px;
+  }
+  .training-item:last-child{ padding-bottom:0; }
+  /* 타임라인 위의 네온 점 */
+  .training-item::before{
+    content:'';
+    position:absolute;
+    left:-41px; top:4px;
+    width:11px; height:11px;
+    border-radius:50%;
+    background:var(--bg-0);
+    border:2px solid var(--neon-cyan);
+    box-shadow:0 0 10px var(--neon-cyan);
+  }
+  .training-date{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:0.08em;
+    color:var(--neon-cyan);
+    margin-bottom:8px;
+  }
+  .training-content h3{
+    font-size:17px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .training-content p{
+    font-size:14px;
+    color:var(--text-1);
+    max-width:640px;
+  }
+  .training-content ul{
+    display:flex; flex-direction:column; gap:6px;
+    margin-top:4px;
+  }
+  .training-content ul li{
+    font-size:13.5px;
+    color:var(--text-1);
+    max-width:640px;
+    padding-left:14px;
+    position:relative;
+  }
+  .training-content ul li::before{
+    content:'';
+    position:absolute; left:0; top:7px;
+    width:4px; height:4px;
+    border-radius:50%;
+    background:var(--neon-cyan);
+    box-shadow:0 0 6px var(--neon-cyan);
+  }
+
+  /* ============================================================
+     Contact / 연락처
+     ============================================================ */
+  .contact-box{
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:64px 48px;
+    text-align:center;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(77,238,234,0.08), transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(185,139,255,0.08), transparent 50%),
+      var(--card-bg);
+    position:relative;
+  }
+  .contact-box h2{
+    font-size:clamp(26px,4vw,38px);
+    font-weight:700;
+    margin-bottom:14px;
+  }
+  .contact-box p{ color:var(--text-1); margin-bottom:36px; }
+  .contact-links{
+    display:flex; justify-content:center; gap:16px; flex-wrap:wrap;
+  }
+  .contact-link{
+    display:flex; align-items:center; gap:10px;
+    padding:14px 24px;
+    border-radius:100px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.02);
+    font-size:14px;
+    transition:all 0.3s ease;
+  }
+  .contact-link:hover{
+    border-color:var(--neon-cyan);
+    box-shadow:0 0 20px rgba(77,238,234,0.25);
+    transform:translateY(-3px);
+  }
+
+  footer{
+    padding:32px 0;
+    text-align:center;
+    color:var(--text-2);
+    font-size:12.5px;
+    border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+<!-- ============================================================
+     1. 상단 메뉴
+     ============================================================ -->
+<header>
+<nav class="nav">
+<!-- 로고를 클릭하면 첫 화면(Home)으로 이동합니다 (Home 메뉴 항목 대체) -->
+<a class="logo" href="#home">JI EUN<span>.</span></a>
+<!-- 메뉴 링크 + Contact 버튼 + 모바일 버거 아이콘을 한 그룹으로 묶음 -->
+<div class="nav-right">
+<ul class="nav-links" id="navLinks">
+<li><a class="nav-link" href="#about">About</a></li>
+<li><a class="nav-link" href="#experience">Experience</a></li>
+<li><a class="nav-link" href="#skills">Capabilities</a></li>
+<li><a class="nav-link" href="#projects">Projects</a></li>
+<li><a class="nav-link" href="#training">Training</a></li>
+</ul>
+<!-- ✏️ 메뉴와 별도로 항상 보이는 Contact 버튼 -->
+<a class="nav-cta" href="#contact">Contact</a>
+<!-- 모바일용 햄버거 버튼 -->
+<button aria-label="메뉴 열기" class="burger" id="burgerBtn">
+<span></span><span></span><span></span>
+</button>
+</div>
+</nav>
+</header>
+<!-- ============================================================
+     2. 첫 화면 (히어로)
+     ============================================================ -->
+<section class="hero" id="home">
+<!-- 배경에 흐르는 네온 데이터 클러스터 애니메이션 (단일세포 UMAP을 모티프로 함) -->
+<canvas id="hero-canvas"></canvas>
+<div class="hero-inner">
+<span class="hero-tag">// Bioinformatics × Research Ops</span>
+<!-- ✏️ 이름 수정 위치 -->
+<h1>정지은</h1>
+<!-- ✏️ 직업 또는 한 줄 소개 수정 위치 -->
+<p class="hero-role">데이터 속에서 <em>생명의 패턴</em>을 찾는 바이오인포매틱스 연구자</p>
+<!-- ✏️ 간단한 자기소개 문구 수정 위치 -->
+<p class="hero-desc">
+      단일세포·다중 오믹스 데이터 분석부터 연구행정까지, 연구와 실무를 연결합니다.
+      Bioinformatics 기반의 데이터 분석 및 결과 도출은 물론, 바이오의약품 품질
+      관련 분야까지 폭넓게 관심을 갖고 있습니다.
+    </p>
+<div class="hero-btns">
+<a class="btn btn-primary" href="#projects">프로젝트 보기</a>
+<a class="btn btn-ghost" href="#contact">연락하기</a>
+</div>
+</div>
+</section>
+<!-- ============================================================
+     About / 자기소개 요약
+     ============================================================ -->
+<section id="about">
+<div class="wrap">
+<div class="eyebrow">About</div>
+<h2 class="section-title reveal">연구와 행정, 두 언어를 함께 이해합니다</h2>
+<p class="section-sub reveal">
+      바이오 데이터 분석 역량과 연구행정 경험을 함께 갖춘 실무형 연구자입니다.
+    </p>
+<div class="about-grid">
+<div class="reveal">
+<div class="about-stat">
+<div class="num">2 Fields</div>
+<div class="label">오믹스 데이터 분석 &amp; 연구개발사업 운영</div>
+</div>
+<div class="about-stat">
+<div class="num">4+</div>
+<div class="label">주요 연구·개발 프로젝트 수행</div>
+</div>
+<div class="about-stat">
+<div class="num">IND</div>
+<div class="label">줄기세포 치료제 승인 자료 작성 참여</div>
+</div>
+</div>
+<div class="about-text reveal">
+<!-- ✏️ 자기소개 요약 문단 수정 위치 -->
+<p>
+          석·박사 과정에서 단백질 구조·유전자 조절·게놈 프로젝트 연구를 수행하였고,
+          SCIE급 저널에 연구 성과를 발표하는 성과로 이어졌습니다.
+          현재는 이러한 실험 기반 지식을 바탕으로 <strong>데이터 분석 분야</strong>에
+          많은 관심을 갖고 있습니다.
+        </p>
+<p>
+          학위 과정과 벤처기업 근무 등을 거치며 분자생물학 기반의 DNA · RNA work,  단백질 실험 및
+          세포 배양(Cell Culture) 등 다양한 <strong>Wet-lab 경험</strong>을 쌓아왔습니다.
+        </p>
+<p>
+          국가 R&amp;D 과제 참여 및 행정 업무 경험, 벤처기업 근무 경험을 통해
+          <strong>연구비 관리와 실험실 운영 전반의 메커니즘</strong>을 잘 이해하고 있습니다.
+        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- ============================================================
+     3. 경력 소개 (카드 + hover 인터랙션)
+     ============================================================ -->
+<section id="experience">
+<div class="wrap">
+<div class="eyebrow">Experience</div>
+<h2 class="section-title reveal">연구경력 및 수행 프로젝트</h2>
+<p class="section-sub reveal">단일세포 오믹스 분석부터 진단기술 개발, 세포치료제 연구까지의 경력입니다.</p>
+<div class="exp-grid">
+<!-- ✏️ 경력 카드 1 -->
+<div class="exp-card reveal">
+<div class="exp-icon">🧬</div>
+<h3>단일세포·전사체 오믹스 데이터 분석(Bioinformatics 연계)</h3>
+<ul>
+<li>scRNA-seq / Bulk RNA-seq 기반 세포군 정의 및 기능적 특성 규명</li>
+<li>Seurat / Scanpy 기반 클러스터링, 차등 발현·세포 간 상호작용 분석</li>
+<li>암 조직 기반 치료제 개발 문헌조사 및 면역세포 치료전략 데이터 해석</li>
+</ul>
+</div>
+<!-- ✏️ 경력 카드 2 -->
+<div class="exp-card reveal">
+<div class="exp-icon">🧪</div>
+<h3>환자 기반 유전체·진단기술 개발</h3>
+<ul>
+<li>돌연변이 분석, SNP 분석, real-time PCR 기반 분자유전 진단법 구축</li>
+<li>감염성질환 NGS 진단키트 개발 연구과제 참여, 특허 출원 업무 지원</li>
+<li>오믹스 데이터 기반 폐렴균 진단 후보 마커 도출</li>
+</ul>
+</div>
+<!-- ✏️ 경력 카드 3 -->
+<div class="exp-card reveal">
+<div class="exp-icon">🧫</div>
+<h3>줄기세포·면역세포치료제 연구 및 개발</h3>
+<ul>
+<li>줄기세포 치료제 비임상시험 기획 및 결과 분석</li>
+<li>IND 승인 자료 확보 및 보고서 작성 참여</li>
+<li>iMSC vs 조직 유래 MSC 비교 분석, 유전자 발현 조절 원리 연구</li>
+</ul>
+</div>
+<!-- ✏️ 경력 카드 4 -->
+<div class="exp-card reveal">
+<div class="exp-icon">🔬</div>
+<h3>분자생물학 실험 연구</h3>
+<ul>
+<li>Primary cell culture, iPS cell 유도 및 유전자 분석</li>
+<li>Western blot, Immunoprecipitation, SDS-PAGE, 단백질 정제</li>
+<li>Lentiviral 생산·transduction, BAC library, molecular cloning</li>
+<li>DNA, RNA work, realtime-PCR, Sequencing · RNA-seq 분석</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- ============================================================
+     4. 보유 역량 (아이콘/태그)
+     ============================================================ -->
+<section id="skills">
+<div class="wrap">
+<div class="eyebrow">Capabilities</div>
+<h2 class="section-title reveal">보유 역량</h2>
+<p class="section-sub reveal">오믹스 데이터 분석부터 연구문서 작성까지, 연구 전 과정을 다룰 수 있습니다.</p>
+<!-- ✏️ 태그를 추가/삭제하려면 <div class="skill-tag"> 블록을 복사하거나 지우세요 -->
+<div class="skills-wrap reveal"><div class="skill-tag"><span class="ic">🧬</span>유전체 데이터 기반 후보 유전자·진단 마커 발굴 및 감염성 질환 진단키트 특허 출원 참여</div><div class="skill-tag"><span class="ic">📊</span>NGS 데이터 분석 및 진단 마커 개발 역량</div><div class="skill-tag"><span class="ic">🧪</span>BAC Library · Molecular Cloning · DNA Sequencing · RNA-seq 분석</div><div class="skill-tag"><span class="ic">🧫</span>Cell Culture · Virus Vector 기반 shRNA Knockdown</div><div class="skill-tag"><span class="ic">🔬</span>Real-time PCR · Western Blot 등 분자생물학 실험</div><div class="skill-tag"><span class="ic">⚗️</span>돌연변이체 제작 · SDS-PAGE · 단백질 정제</div></div>
+</div>
+</section>
+<!-- ============================================================
+     5. 프로젝트
+     ============================================================ -->
+<section id="projects">
+<div class="wrap">
+<div class="eyebrow">Projects</div>
+<h2 class="section-title reveal">주요 프로젝트</h2>
+<p class="section-sub reveal">담당 역할과 사용 기술을 함께 정리했습니다.</p>
+<div class="proj-grid">
+<!-- ✏️ 프로젝트 카드 1 (이미지는 .proj-thumb 안의 <img> 태그로 교체 가능) -->
+<div class="proj-card reveal">
+<div class="proj-thumb"><span class="glyph">RNA-SEQ · UMAP</span></div>
+<div class="proj-body">
+<h3>iMSC vs 조직 유래 MSC 전사체 비교 분석</h3>
+<p>Illumina RNA-seq 기반으로 유도만능줄기세포 유래 MSC와 조직 유래 MSC의
+             전사체를 비교하여 기능유전자 및 alternative splicing 관련 메커니즘을 규명했습니다.</p>
+<div class="proj-meta">
+<div><span>Role</span>데이터 분석 및 결과 해석</div>
+</div>
+<div class="proj-tech">
+<span>RNA-seq</span><span>Seurat</span><span>R</span>
+</div>
+</div>
+</div>
+<!-- ✏️ 프로젝트 카드 2 -->
+<div class="proj-card reveal">
+<div class="proj-thumb"><span class="glyph">NGS · DIAGNOSTICS</span></div>
+<div class="proj-body">
+<h3>감염성질환 NGS 진단키트 개발</h3>
+<p>기후변화로 매개되는 감염성질환의 신속 진단을 위한 NGS 기반 진단키트 개발
+             과제에 참여하여 병원체 동정과 진단 마커 발굴을 수행했습니다.</p>
+<div class="proj-meta">
+<div><span>Role</span>마커 발굴 및 특허출원 지원</div>
+</div>
+<div class="proj-tech">
+<span>NGS</span><span>Real-time PCR</span><span>유전체 분석</span>
+</div>
+</div>
+</div>
+<!-- ✏️ 프로젝트 카드 3 -->
+<div class="proj-card reveal">
+<div class="proj-thumb"><span class="glyph">IND · NONCLINICAL</span></div>
+<div class="proj-body">
+<h3>줄기세포 치료제 IND 승인 지원</h3>
+<p>줄기세포 치료제의 비임상시험을 기획하고 결과를 분석하여 IND 승인 자료
+             확보 및 보고서 작성 업무에 참여했습니다.</p>
+<div class="proj-meta">
+<div><span>Role</span>비임상 데이터 분석 · 보고서 작성</div>
+</div>
+<div class="proj-tech">
+<span>문헌조사</span><span>데이터 정리</span><span>보고서 작성</span>
+</div>
+</div>
+</div>
+<!-- ✏️ 프로젝트 카드 4 -->
+<div class="proj-card reveal">
+<div class="proj-thumb"><span class="glyph">GENOMICS · MARKER</span></div>
+<div class="proj-body">
+<h3>오믹스 기반 폐렴균 진단 마커 발굴</h3>
+<p>유전체 및 전사체 데이터 분석을 통해 폐렴균 진단 후보 마커를 도출하는
+             연구에 참여했습니다.</p>
+<div class="proj-meta">
+<div><span>Role</span>오믹스 데이터 분석</div>
+</div>
+<div class="proj-tech">
+<span>유전체 분석</span><span>전사체 분석</span><span>데이터 시각화</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ============================================================
+     Training / 교육 및 연구 훈련 (타임라인)
+     ============================================================ -->
+<section id="training">
+<div class="wrap">
+<div class="eyebrow">Training</div>
+<h2 class="section-title reveal">교육 및 연구 훈련 과정</h2>
+<p class="section-sub reveal">전공 관련 실무 교육 및 AI 활용 역량 강화를 위해 이수한 과정입니다.</p>
+<div class="training-list">
+<!-- ✏️ 교육/훈련 이력 항목 수정 위치 (최신순으로 정렬되어 있습니다) -->
+<div class="training-item reveal">
+<div class="training-date">2026.07 – 2026.08.28</div>
+<div class="training-content">
+<h3>AI 활용 실무 훈련 (WISET × 상상력집단)</h3>
+<ul>
+<li>AI 활용 업무 생산성 향상</li>
+<li>ChatGPT · Claude · Gemini AI 업무 자동화</li>
+<li>연구·실험 데이터 분석 프로젝트, Python · Colab 기반 데이터 분석, GitHub · Notion 포트폴리오 제작</li>
+</ul>
+</div>
+</div>
+<div class="training-item reveal">
+<div class="training-date">2026.06 – 2026.07</div>
+<div class="training-content">
+<h3>생성형 AI 전문강사 양성과정 (WISET × AWS)</h3>
+<ul>
+<li>프롬프트 엔지니어링, RAG, MCP, Agentic AI, AI Coding Agent</li>
+<li>AWS 기반 AI 코딩 활용</li>
+<li>AI 교육 콘텐츠 개발 등 프로젝트 수행 및 결과 발표</li>
+</ul>
+</div>
+</div>
+<div class="training-item reveal">
+<div class="training-date">2024.07.01 – 09.04 (20일, 60시간) </div>
+<div class="training-content">
+<h3>서초구 숭실대학교 AI+X 아카데미 'AI 프로젝트' 과정</h3>
+<p>숭실대학교 AI융합연구원 주관</p>
+</div>
+</div>
+<div class="training-item reveal">
+<div class="training-date">2023.10.12</div>
+<div class="training-content">
+<h3>비임상시험 전문인력양성교육 3차 과정</h3>
+<p>한국신뢰성보증연구협동조합 · 식약처 공동 주최</p>
+</div>
+</div>
+<div class="training-item reveal">
+<div class="training-date">2022.10.06 – 10.14 (34시간) 수료</div>
+<div class="training-content">
+<h3>연구과제 계획 수립 및 관리 지원 과정</h3>
+<p>산업통상자원부 · 한국산업기술진흥원 주최, 사단법인 한국여성공학기술인협회 주관</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ============================================================
+     6. 연락처
+     ============================================================ -->
+<section id="contact">
+<div class="wrap">
+<div class="contact-box reveal">
+<h2>함께 이야기 나누고 싶습니다</h2>
+<p>연구와 협업 제안, 어떤 이야기든 편하게 연락 주세요.</p>
+<div class="contact-links">
+<!-- ✏️ 이메일 주소 수정 위치 -->
+<a class="contact-link" href="mailto:tychijee23@gmail.com">✉️ tychijee23@gmail.com</a>
+<!-- ✏️ 아래 href="#" 부분을 본인의 실제 LinkedIn 주소로 교체하세요 -->
+<a class="contact-link" href="#" rel="noopener" target="_blank">🔗 LinkedIn</a>
+<!-- ✏️ 아래 href="#" 부분을 본인의 실제 GitHub 또는 블로그 주소로 교체하세요 -->
+<a class="contact-link" href="#" rel="noopener" target="_blank">💻 GitHub / Blog</a>
+</div>
+</div>
+</div>
+</section>
+<footer>
+  © 2026 Jieun Jung. All rights reserved.
+</footer>
+<script>
+  /* ============================================================
+     모바일 메뉴 토글
+     ============================================================ */
+  const burgerBtn = document.getElementById('burgerBtn');
+  const navLinks = document.getElementById('navLinks');
+  burgerBtn.addEventListener('click', () => {
+    burgerBtn.classList.toggle('open');
+    navLinks.classList.toggle('open');
+  });
+  // 메뉴 항목 클릭 시 모바일 메뉴 자동 닫기
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      burgerBtn.classList.remove('open');
+      navLinks.classList.remove('open');
+    });
+  });
+
+  /* ============================================================
+     스크롤 시 등장하는 페이드업 애니메이션
+     ============================================================ */
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.15 });
+  revealEls.forEach(el => observer.observe(el));
+
+  /* ============================================================
+     히어로 배경: 단일세포 UMAP 클러스터를 모티프로 한
+     네온 파티클 네트워크 애니메이션
+     ============================================================ */
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let particles = [];
+  const colors = ['#4deeea', '#b98bff', '#8bffb0'];
+
+  function resizeCanvas(){
+    canvas.width = canvas.offsetWidth * devicePixelRatio;
+    canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+
+  function initParticles(){
+    const count = Math.min(70, Math.floor(canvas.offsetWidth / 18));
+    // 3개의 "클러스터 중심"을 만들어 데이터가 군집을 이루는 것처럼 보이게 함
+    const clusterCenters = [
+      { x: canvas.offsetWidth*0.28, y: canvas.offsetHeight*0.4 },
+      { x: canvas.offsetWidth*0.62, y: canvas.offsetHeight*0.55 },
+      { x: canvas.offsetWidth*0.5,  y: canvas.offsetHeight*0.75 }
+    ];
+    particles = Array.from({length: count}).map(() => {
+      const c = clusterCenters[Math.floor(Math.random()*clusterCenters.length)];
+      return {
+        x: c.x + (Math.random()-0.5) * 220,
+        y: c.y + (Math.random()-0.5) * 220,
+        r: Math.random()*2 + 1.2,
+        vx: (Math.random()-0.5) * 0.25,
+        vy: (Math.random()-0.5) * 0.25,
+        color: colors[Math.floor(Math.random()*colors.length)]
+      };
+    });
+  }
+
+  function drawFrame(){
+    ctx.clearRect(0,0,canvas.offsetWidth, canvas.offsetHeight);
+
+    // 점들을 이동시키고 그리기
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if(p.x < 0 || p.x > canvas.offsetWidth) p.vx *= -1;
+      if(p.y < 0 || p.y > canvas.offsetHeight) p.vy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+    });
+
+    // 가까운 점들끼리 은은한 선으로 연결 (데이터 네트워크 느낌)
+    ctx.shadowBlur = 0;
+    for(let i=0; i<particles.length; i++){
+      for(let j=i+1; j<particles.length; j++){
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 90){
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(120,180,255,${0.12 * (1 - dist/90)})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    if(!prefersReducedMotion){
+      requestAnimationFrame(drawFrame);
+    }
+  }
+
+  function setupHeroCanvas(){
+    resizeCanvas();
+    initParticles();
+    drawFrame();
+  }
+
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    initParticles();
+    if(prefersReducedMotion) drawFrame();
+  });
+
+  setupHeroCanvas();
+</script>
+</body>
+</html>
